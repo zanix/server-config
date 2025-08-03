@@ -1,0 +1,13 @@
+#!/bin/env bash
+# Creates a rdiff-backup for all websites.
+# See /etc/cron.d/backup
+
+SOURCE="${1:-/var/www}"
+DEST="${2:-/backup/www}"
+KEEP="${3:-30D}"
+
+# Create directory
+mkdir -p ${DEST}
+
+rdiff-backup --api-version 201 backup ${SOURCE} ${DEST}/
+rdiff-backup --api-version 201 remove increments --older-than ${KEEP} ${DEST}/

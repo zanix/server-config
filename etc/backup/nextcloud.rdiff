@@ -1,0 +1,25 @@
+#!/bin/env bash
+# See /etc/cron.d/backup
+
+# Check if two parameters are provided
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 <source_directory> <destination_directory>"
+  echo "Error: Two parameters are required."
+  exit 1
+fi
+
+SOURCE="${1}"
+DEST="${2}"
+KEEP="${3:-30D}"
+
+# Check if the source exists.
+if [ ! -d "${SOURCE}" ]; then
+  echo "Error: Source directory '${SOURCE}' does not exist."
+  exit 1
+fi
+
+# Create directories
+mkdir -p ${DEST}
+
+rdiff-backup --api-version 201 backup ${SOURCE} ${DEST}/
+rdiff-backup --api-version 201 remove increments --older-than ${KEEP} ${DEST}/

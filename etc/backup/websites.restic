@@ -1,0 +1,30 @@
+#!/bin/env bash
+# Creates a backup on backblaze with restic for all websites including databases.
+# See /etc/cron.d/backup
+
+source /etc/backup/restic.env
+export RESTIC_REPOSITORY="b2:servername:www"
+
+# for the first run uncomment
+restic init
+
+# --quiet - should speed up backup process see: https://github.com/restic/restic/pull/1676
+restic backup \
+  --limit-upload=6000 \
+  --quiet \
+  --exclude-caches \
+  '/var/www'
+
+# remove outdated snapshots
+# --keep-last 20 - there won't be probably more hourly snapshots in last two days than 20
+# --prune - delete repositories which should be forgotten
+restic forget --keep-last 20 \
+  --keep-daily 7 \
+  --keep-weekly 4 \
+  --keep-monthly 6 \
+  --keep-yearly 1 \
+  --limit-upload 500 \
+  --prune
+
+# --with-cache - limits Class B Transactions on BackBlaze B2 see: https://forum.restic.net/t/limiting-b2-transactions/209/4
+restic check --with-cache

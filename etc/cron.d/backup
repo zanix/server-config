@@ -1,0 +1,39 @@
+# /etc/cron.d/backup -- cron tab entry for custom backups
+MAILTO=email@domain.tld
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+############################################
+# mysqldump
+############################################
+
+# At 0 past every 2nd hour
+# 0 */2 * * * root croncape /etc/backup/databases.mysql [DEST(/backup/mysql)] [KEEP(30D)]
+
+############################################
+# rdiff
+############################################
+
+# At 10 past every 6th hour
+# 10 */6 * * * root croncape /etc/backup/system.rdiff [DEST(/backup/system)] [KEEP(30D)] [EXTRA]
+# At 0 past every 2nd hour
+# 0 */2 * * * root croncape /etc/backup/websites.rdiff [SOURCE(/var/www)] [DEST(/backup/www)] [KEEP(30D)]
+
+# At 20 minutes past every 6th hour.
+# 20 */6 * * * root croncape /etc/backup/nextcloud.rdiff SOURCE DEST [KEEP(30D)]
+
+############################################
+# restic
+# Restic backup scripts REQUIRE editing!
+############################################
+
+# 8am Saturday (1am Saturday MST)
+# 0 8 * * 6 root croncape /etc/backup/system.restic
+
+# 9am Saturday (2am Saturday MST)
+# 0 9 * * 6 root croncape /etc/backup/websites.restic
+
+# 10am Saturday (3am Saturday MST)
+# 0 10 * * 6 root croncape /etc/backup/databases.restic
+
+# 8am Saturday (1am Saturday MST)
+# 0 8 * * 6 root croncape /etc/backup/nextcloud.restic

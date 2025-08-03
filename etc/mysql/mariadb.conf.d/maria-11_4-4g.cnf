@@ -1,0 +1,39 @@
+# MariaDB 11.4 config file.
+#
+# Max MySQL memory: 4.3G
+# Total buffers: 1.4G global + 18.7M per thread (151 max threads)
+#
+[server]
+skip_name_resolve = 1
+performance_schema = on
+
+# InnoDB
+innodb_buffer_pool_size = 1024M
+innodb_log_file_size = 256M  # 25% of innodb_buffer_pool_size
+innodb_log_buffer_size = 64M
+innodb_flush_log_at_trx_commit = 1
+
+# Query Cache Configuration
+query_cache_type = 1
+query_cache_limit = 2M
+query_cache_min_res_unit = 2k
+query_cache_size = 96M
+
+# Fine tuning
+tmp_table_size = 24M      # tmp_table_size == max_heap_table_size
+max_heap_table_size= 24M  # tmp_table_size == max_heap_table_size
+wait_timeout = 600
+join_buffer_size = 16M
+; max_allowed_packet = 16M
+table_definition_cache = 1600
+
+# Log
+log_error = /var/log/mysql/error.log
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 1
+
+[mysqld]
+# Ensure "READ-COMMITTED" isolation level
+transaction_isolation = READ-COMMITTED
+binlog_format = ROW

@@ -1,0 +1,5 @@
+# /etc/cron.d/optimize-mysql -- optimize MySQL tables
+MAILTO=email@domain.tld
+
+# Optimize MySQL tables
+5 0 * * * root /usr/local/bin/croncape /usr/bin/mysqlcheck --auto-repair --optimize --all-databases

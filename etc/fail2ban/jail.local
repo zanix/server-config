@@ -1,0 +1,55 @@
+[DEFAULT]
+mta = sendmail
+destemail = email@domain.tld
+sendername = full_name
+sender = email@domain.tld
+; action = %(action_mwl)s
+ignoreip =
+
+[recidive]
+enabled = true
+
+[manual]
+banaction = %(banaction_allports)s
+bantime = -1
+enabled = true
+
+[sshd]
+enabled = true
+maxretry = 3
+bantime = 1h
+bantime.increment = true
+bantime.factor = 1
+bantime.formula = ban.Time * (1<<(ban.Count if ban.Count<20 else 20)) * banFactor
+
+[nginx-http-auth]
+enabled = true
+
+[postfix]
+enabled = true
+maxretry = 3
+
+[postfix-sasl]
+enabled = true
+maxretry = 3
+
+; [dovecot]
+; enabled = true
+; action = iptables-multiport[name=dovecot-pop3imap, port="pop3,pop3s,imap,imaps", protocol=tcp]
+
+; [roundcube-auth]
+; enabled = true
+
+; [named-refused-udp]
+; enabled  = true
+; port     = domain,953
+; protocol = udp
+; filter   = named-refused
+; logpath  = /var/log/named/security.log
+
+; [named-refused-tcp]
+; enabled  = true
+; port     = domain,953
+; protocol = tcp
+; filter   = named-refused
+; logpath  = /var/log/named/security.log

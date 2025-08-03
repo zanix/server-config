@@ -1,0 +1,32 @@
+#!/bin/env bash
+# Creates mysql database dumps and performs a rdiff-backup.
+# See /etc/cron.d/backup
+
+DEST="${1:-/backup/mysql}"
+KEEP="${2:-30D}"
+EXCLUSION_LIST="'information_schema','performance_schema','mysql','lost+found'"
+EXCLUDE_USERS="'debian-sys-maint','root'"
+SQLSTMT="SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT IN (${EXCLUSION_LIST})"
+
+# Create directories
+mkdir -p ${DEST}/{dump,rdiff}
+
+# Clear directory
+rm ${DEST}/dump/*.sql
+
+# Dump databases
+for DB in `mariadb -ANe"${SQLSTMT}"`
+do
+  mariadb-dump -f --single-transaction --no-create-info --no-data --add-drop-database --databases ${DB} >> "${DEST}/dump/database_list.sql"
+  mariadb-dump -f --single-transaction --complete-insert --add-drop-table --quote-names --no-autocommit --quick ${DB} > "${DEST}/dump/${DB}.sql"
+done
+
+# Dump users and privileges
+mariadb -B -N -e "SELECT DISTINCT CONCAT('SHOW GRANTS FOR \'', user, '\'@\'', host, '\';') AS query FROM mysql.user WHERE user NOT IN(${EXCLUDE_USERS})" | \
+  mariadb -r | \
+  sed 's/\(GRANT .*\)/\1;/;s/^\(Grants for .*\)/## \1 ##/;/##/{x;p;x;}' \
+  > "${DEST}/dump/users.sql"
+
+# RDiff databases
+rdiff-backup --api-version 201 backup ${DEST}/dump/ ${DEST}/rdiff/
+rdiff-backup --api-version 201 remove increments --older-than ${KEEP} ${DEST}/rdiff/

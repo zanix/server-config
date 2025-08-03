@@ -1,0 +1,57 @@
+#!/bin/env bash
+
+## declare php versions to set
+declare -a arr=("8.4")
+
+## now loop through the above array
+for VER in "${arr[@]}"
+do
+  if [[ -d /etc/php/$VER/fpm/pool.d ]]; then
+    sed -i 's|pm.max_children = .*|pm.max_children = 10|' /etc/php/$VER/fpm/pool.d/www.conf
+    sed -i 's|pm.start_servers = .*|pm.start_servers = 4|' /etc/php/$VER/fpm/pool.d/www.conf
+    sed -i 's|pm.min_spare_servers = .*|pm.min_spare_servers = 2|' /etc/php/$VER/fpm/pool.d/www.conf
+    sed -i 's|pm.max_spare_servers = .*|pm.max_spare_servers = 6|' /etc/php/$VER/fpm/pool.d/www.conf
+    sed -i 's|;pm.max_requests = .*|pm.max_requests = 2000|' /etc/php/$VER/fpm/pool.d/www.conf
+    sed -i 's|;catch_workers_output = yes|catch_workers_output = yes|' /etc/php/$VER/fpm/pool.d/www.conf
+    sed -i 's|;php_admin_value[error_log]|php_admin_value[error_log]|' /etc/php/$VER/fpm/pool.d/www.conf
+    sed -i 's|;php_admin_flag[log_errors]|php_admin_flag[log_errors]|' /etc/php/$VER/fpm/pool.d/www.conf
+  fi
+
+  if [[ -d /etc/php/$VER/fpm/conf.d ]]; then
+    echo "[PHP]
+memory_limit = 512M
+upload_max_filesize = 128M
+post_max_size = 128M
+max_execution_time = 240
+realpath_cache_size = 4096k
+realpath_cache_ttl = 3600" > /etc/php/$VER/fpm/conf.d/99-php-overrides.ini
+  fi
+
+  if [[ -d /etc/php/$VER/cgi/conf.d ]]; then
+    echo "[PHP]
+memory_limit = 512M
+upload_max_filesize = 128M
+post_max_size = 128M
+max_execution_time = 240
+realpath_cache_size = 4096k
+realpath_cache_ttl = 3600" > /etc/php/$VER/cgi/conf.d/99-php-overrides.ini
+  fi
+
+  if [[ -d /etc/php/$VER/cli/conf.d ]]; then
+    echo "[PHP]
+realpath_cache_size = 4096k
+realpath_cache_ttl = 3600" > /etc/php/$VER/cli/conf.d/99-php-overrides.ini
+  fi
+
+  if [[ -d /etc/php/$VER/mods-available ]]; then
+    echo "
+opcache.enable=1
+opcache.enable_cli=1
+opcache.memory_consumption=128
+opcache.interned_strings_buffer=8
+opcache.max_accelerated_files=10000
+opcache.save_comments=1
+opcache.revalidate_freq=10
+opcache.fast_shutdown=1" >> /etc/php/$VER/mods-available/opcache.ini
+  fi
+done
