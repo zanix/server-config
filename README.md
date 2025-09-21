@@ -56,27 +56,22 @@ Ensure restic env file is read only for root.
 chmod 600 etc/backup/restic.env
 ```
 
-### 3. Deploy Configuration Files
+### 3. Review and Edit
 
-Copy the configuration files to their respective locations on your server.
-For example:
+- Review all configuration files for environment-specific settings.
+- Edit backup scripts in `etc/backup/` as needed for your backup destinations and retention policies.
+- Adjust PHP versions in `scripts/php-config` if necessary.
 
-```sh
-sudo cp -r etc/* /etc/
-sudo cp -r usr/local/bin/* /usr/local/bin/
-sudo cp -r scripts/* /usr/local/bin/
-```
+### 4. Deploy Configuration Files
 
 > [!IMPORTANT]
 > You should review each folder and only copy over the configuration that is needed!
 > For example, `etc/mysql/mariadb.conf.d/maria*.conf` contains multiple configurations for varing levels of RAM usage.
 > Pick ONLY 1 configuration and copy to `/etc/mysql/mariadb.conf.d`.
 
-### 4. Review and Edit
+Copy the configuration files to their respective locations on your server.
 
-- Review all configuration files for environment-specific settings.
-- Edit backup scripts in `etc/backup/` as needed for your backup destinations and retention policies.
-- Adjust PHP versions in `scripts/php-config` if necessary.
+Be sure to evaluate all scripts and configurations before copying!
 
 ### 5. Reload/Restart Services
 
@@ -86,6 +81,7 @@ After copying configuration files, reload or restart affected services, e.g.:
 sudo systemctl reload nginx
 sudo systemctl restart fail2ban
 sudo systemctl restart mysql
+sudo systemctl restart php8.4-fpm
 ```
 
 ## Notes

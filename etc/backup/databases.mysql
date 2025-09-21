@@ -24,7 +24,7 @@ done
 # Dump users and privileges
 mariadb -B -N -e "SELECT DISTINCT CONCAT('SHOW GRANTS FOR \'', user, '\'@\'', host, '\';') AS query FROM mysql.user WHERE user NOT IN(${EXCLUDE_USERS})" | \
   mariadb -r | \
-  sed 's/\(GRANT .*\)/\1;/;s/^\(Grants for .*\)/## \1 ##/;/##/{x;p;x;}' \
+  sed 's/\(GRANT .*\)/\1;/;s/^\(Grants for .*\)/-- \1/;/--/{x;p;x;}' \
   > "${DEST}/dump/users.sql"
 
 # RDiff databases
