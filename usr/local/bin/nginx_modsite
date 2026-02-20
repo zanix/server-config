@@ -94,8 +94,8 @@ ngx_select_site() {
     se="${sites_en[@]##*/}"
 
     case "$1" in
-        not_enabled) sites=$(comm -13 <(printf "%s\n" $se) <(printf "%s\n" $sa));;
-        is_enabled) sites=$(comm -12 <(printf "%s\n" $se) <(printf "%s\n" $sa));;
+        not_enabled) sites=$(comm -13 <(printf "%s\n" "$se") <(printf "%s\n" "$sa"));;
+        is_enabled) sites=$(comm -12 <(printf "%s\n" "$se") <(printf "%s\n" "$sa"));;
     esac
 
     ngx_prompt "$sites"
@@ -106,12 +106,12 @@ ngx_prompt() {
     i=0
 
     echo "SELECT A SITE:"
-    for site in ${sites[@]}; do
+    for site in "${sites[@]}"; do
         echo -e "$i:\t${sites[$i]}"
         ((i++))
     done
 
-    read -p "Enter number for website: " i
+    read -rp "Enter number for website: " i
     SELECTED_SITE="${sites[$i]}"
 }
 
@@ -121,13 +121,13 @@ ngx_sites() {
         enabled) dir="$NGINX_SITES_ENABLED";;
     esac
 
-    for file in $dir/*; do
+    for file in "$dir"/*; do
         echo -e "\t${file#*$dir/}"
     done
 }
 
 ngx_reload() {
-    read -p "Would you like to reload the Nginx configuration now? (Y/n) " reload
+    read -rp "Would you like to reload the Nginx configuration now? (Y/n) " reload
     [[ "$reload" != "n" && "$reload" != "N" ]] && systemctl reload nginx
 }
 

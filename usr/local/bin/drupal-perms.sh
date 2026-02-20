@@ -33,7 +33,6 @@ Usage: sudo ${0##*/} --path=PATH --user=USER --group=GROUP
 Example: sudo ${0##*/} --path=/var/www/http --user=john --group=www-data
 
 HELP
-  exit 0
 }
 
 # Parse Command Line Arguments
@@ -48,7 +47,10 @@ while [ $# -gt 0 ]; do
     --group=*)
       group="${1#*=}"
       ;;
-    --help) print_help;;
+    --help)
+			print_help
+			exit 0
+			;;
     *)
       printf "Invalid argument, run --help for valid arguments.\n";
       exit 1
@@ -71,75 +73,75 @@ if [ -z "${user}" ] || [ $(id -un ${user} 2> /dev/null) != "${user}" ]; then
 fi
 
 # Start changing permissions
-cd $drupal_path
-printf "Changing ownership of all contents of \"${drupal_path}\":\n user => \"${user}\" \t group => \"${group}\"\n"
-chown -R ${user}:${group} .
+cd "${drupal_path}" || exit
+printf "Changing ownership of all contents of \"%s\":\n user => \"%s\" \t group => \"%s\"\n" "${drupal_path}" "${user}" "${group}"
+chown -R "${user}":"${group}" .
 
-printf "Changing permissions of all directories inside \"${drupal_path}\" to \"rwxr-x---\"...\n"
+printf "Changing permissions of all directories inside \"%s\" to \"rwxr-x---\"...\n" "${drupal_path}"
 find . -type d -not -path "./sites/*/files" -not -path "./sites/*/files/*" -not -path "./sites/*/private" -not -path "./sites/*/private/*" -not -name ".git" -exec chmod u=rwx,g=rx,o= '{}' \+
 
-printf "Changing permissions of all files inside \"${drupal_path}\" to \"rw-r-----\"...\n"
+printf "Changing permissions of all files inside \"%s\" to \"rw-r-----\"...\n" "${drupal_path}"
 find . -type f -not -path "./sites/*/settings.php" -not -path "./sites/*/default.settings.php" -not -path "./sites/*/files/*" -not -name ".gitignore" -exec chmod u=rw,g=r,o= '{}' \+
 
-printf "Changing permissions of \"files\" and \"private\" directories in \"${drupal_path}/sites\" to \"rwxrwx---\" and user/group => www-data...\n"
-cd ${drupal_path}/sites
+printf "Changing permissions of \"files\" and \"private\" directories in \"%s/sites\" to \"rwxrwx---\" and user/group => www-data...\n" "${drupal_path}"
+cd "${drupal_path}/sites" || exit
 find . -type d -name files -exec chmod ug=rwx,o= '{}' \+
 find . -type d -name files -exec chown -R www-data:www-data '{}' \+
 find . -type d -name private -exec chmod ug=rwx,o= '{}' \+
 find . -type d -name private -exec chown -R www-data:www-data '{}' \+
 
-printf "Changing permissions of settings.php and default.settings.php files inside all directories in \"${drupal_path}/sites\" to \"r--r-----\"...\n"
+printf "Changing permissions of settings.php and default.settings.php files inside all directories in \"%s/sites\" to \"r--r-----\"...\n" "${drupal_path}"
 for x in ./*/settings.php; do
-  printf "Changing permissions ${x} ...\n"
-  find ${x} -type f -exec chmod ug=r,o= '{}' \+
+  printf "Changing permissions %s ...\n" "${x}"
+  find "${x}" -type f -exec chmod ug=r,o= '{}' \+
 done
 for x in ./*/default.settings.php; do
-  printf "Changing permissions ${x} ...\n"
-  find ${x} -type f -exec chmod ug=r,o= '{}' \+
+  printf "Changing permissions %s ...\n" "${x}"
+  find "${x}" -type f -exec chmod ug=r,o= '{}' \+
 done
 
-printf "Changing permissions of all files inside all \"files\" directories in \"${drupal_path}/sites\" to \"rw-rw----\"...\n"
-printf "Changing permissions of all directories inside all \"files\" directories in \"${drupal_path}/sites\" to \"rwxrwx---\"...\n"
+printf "Changing permissions of all files inside all \"files\" directories in \"%s/sites\" to \"rw-rw----\"...\n" "${drupal_path}"
+printf "Changing permissions of all directories inside all \"files\" directories in \"%s/sites\" to \"rwxrwx---\"...\n" "${drupal_path}"
 for x in ./*/files; do
-  printf "Changing permissions ${x} ...\n"
-  find ${x} -type d -not -name ".git" -exec chmod ug=rwx,o= '{}' \+
-  find ${x} -type f -not -path "./*/files/.htaccess" -exec chmod ug=rw,o= '{}' \+
+  printf "Changing permissions %s ...\n" "${x}"
+  find "${x}" -type d -not -name ".git" -exec chmod ug=rwx,o= '{}' \+
+  find "${x}" -type f -not -path "./*/files/.htaccess" -exec chmod ug=rw,o= '{}' \+
 done
 
-printf "Changing permissions of .htaccess files inside all \"files\" directories in \"${drupal_path}/sites\" to \"rw-r----\"...\n"
+printf "Changing permissions of .htaccess files inside all \"files\" directories in \"%s/sites\" to \"rw-r----\"...\n" "${drupal_path}"
 for x in ./*/files/.htaccess; do
-  printf "Changing permissions ${x} ...\n"
-  find ${x} -type f -exec chmod u=rw,g=r,o= '{}' \+
+  printf "Changing permissions %s ...\n" "${x}"
+  find "${x}" -type f -exec chmod u=rw,g=r,o= '{}' \+
 done
 
-printf "Changing permissions of all files inside all \"private\" directories in \"${drupal_path}/sites\" to \"rw-rw----\"...\n"
-printf "Changing permissions of all directories inside all \"private\" directories in \"${drupal_path}/sites\" to \"rwxrwx---\"...\n"
+printf "Changing permissions of all files inside all \"private\" directories in \"%s/sites\" to \"rw-rw----\"...\n" "${drupal_path}"
+printf "Changing permissions of all directories inside all \"private\" directories in \"%s/sites\" to \"rwxrwx---\"...\n" "${drupal_path}"
 for x in ./*/private; do
-  printf "Changing permissions ${x} ...\n"
-  find ${x} -type d -not -name ".git" -exec chmod ug=rwx,o= '{}' \+
-  find ${x} -type f -not -path "./*/private/.htaccess" -exec chmod ug=rw,o= '{}' \+
+  printf "Changing permissions %s ...\n" "${x}"
+  find "${x}" -type d -not -name ".git" -exec chmod ug=rwx,o= '{}' \+
+  find "${x}" -type f -not -path "./*/private/.htaccess" -exec chmod ug=rw,o= '{}' \+
 done
 
-printf "Changing permissions of .htaccess files inside all \"private\" directories in \"${drupal_path}/sites\" to \"rw-r----\"...\n"
+printf "Changing permissions of .htaccess files inside all \"private\" directories in \"%s/sites\" to \"rw-r----\"...\n" "${drupal_path}"
 for x in ./*/private/.htaccess; do
-  printf "Changing permissions ${x} ...\n"
-  find ${x} -type f -exec chmod u=rw,g=r,o= '{}' \+
+  printf "Changing permissions %s ...\n" "${x}"
+  find "${x}" -type f -exec chmod u=rw,g=r,o= '{}' \+
 done
 
-printf "Changing permissions of \".git\" directories and files in \"${drupal_path}\" to \"rwx------\"...\n"
-cd ${drupal_path}
+printf "Changing permissions of \".git\" directories and files in \"%s\" to \"rwx------\"...\n" "${drupal_path}"
+cd "${drupal_path}" || exit
 chmod -R u=rwx,go= .git
 chmod u=rwx,go= .gitignore
 
 if [ -d "${drupal_path}/cache" ]; then
-  printf "Changing permissions of \"cache\" directory in \"${drupal_path}/sites\" to \"rwxrwx---\" and user/group => www-data...\n"
-  cd ${drupal_path}
+  printf "Changing permissions of \"cache\" directory in \"%s/sites\" to \"rwxrwx---\" and user/group => www-data...\n" "${drupal_path}"
+  cd "${drupal_path}" || exit
   chown -R www-data:www-data cache
   chmod -R u=rwx cache
 fi
 
-printf "Changing permissions of various Drupal text files in \"${drupal_path}\" to \"rwx------\"...\n"
-cd ${drupal_path}
+printf "Changing permissions of various Drupal text files in \"%s\" to \"rwx------\"...\n" "${drupal_path}"
+cd "${drupal_path}" || exit
 chmod u=rwx,go= CHANGELOG.txt COPYRIGHT.txt INSTALL.mysql.txt INSTALL.pgsql.txt INSTALL.txt LICENSE.txt MAINTAINERS.txt UPGRADE.txt
 
 echo "Done setting proper permissions on files and directories"
