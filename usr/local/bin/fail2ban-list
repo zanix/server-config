@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+
+import re
+import subprocess
+import sys
+
+# Get jail list
+status_output = subprocess.check_output(["fail2ban-client", "status"], text=True)
+jail_match = re.search(r"Jail list:\s*(.*)", status_output)
+
+if not jail_match:
+    print("No jails found.")
+    sys.exit()
+
+jails = [j.strip() for j in jail_match.group(1).split(",") if j.strip()]
+
+print(f"{'JAIL NAME':<20} | {'BANNED IPs':<30}")
+print("-" * 55)
+
+for jail in jails:
+    jail_status = subprocess.check_output(
+        ["fail2ban-client", "status", jail], text=True
+    )
+    ip_match = re.search(r"Banned IP list:\s*(.*)", jail_status)
+    ips = ip_match.group(1).strip() if ip_match else "None"
+    print(f"{jail:<20} | {ips:<30}")
