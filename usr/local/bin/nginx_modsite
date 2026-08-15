@@ -40,7 +40,7 @@
 # Default Settings
 ##
 
-NGINX_CONF_FILE="$(awk -F= -v RS=' ' '/conf-path/ {print $2}' <<< $(nginx -V 2>&1))"
+NGINX_CONF_FILE="$(awk -F= -v RS=' ' '/conf-path/ {print $2}' <<<$(nginx -V 2>&1))"
 NGINX_CONF_DIR="${NGINX_CONF_FILE%/*}"
 NGINX_SITES_AVAILABLE="$NGINX_CONF_DIR/sites-available"
 NGINX_SITES_ENABLED="$NGINX_CONF_DIR/sites-enabled"
@@ -51,36 +51,36 @@ SELECTED_SITE="$2"
 ##
 
 ngx_enable_site() {
-    [[ ! "$SELECTED_SITE" ]] &&
-        ngx_select_site "not_enabled"
+  [[ ! "$SELECTED_SITE" ]] &&
+    ngx_select_site "not_enabled"
 
-    [[ ! -e "$NGINX_SITES_AVAILABLE/$SELECTED_SITE" ]] && 
-        ngx_error "Site does not appear to exist."
-    [[ -e "$NGINX_SITES_ENABLED/$SELECTED_SITE" ]] &&
-        ngx_error "Site appears to already be enabled"
+  [[ ! -e "$NGINX_SITES_AVAILABLE/$SELECTED_SITE" ]] &&
+    ngx_error "Site does not appear to exist."
+  [[ -e "$NGINX_SITES_ENABLED/$SELECTED_SITE" ]] &&
+    ngx_error "Site appears to already be enabled"
 
-    ln -sf "$NGINX_SITES_AVAILABLE/$SELECTED_SITE" -T "$NGINX_SITES_ENABLED/$SELECTED_SITE"
-    ngx_reload
+  ln -sf "$NGINX_SITES_AVAILABLE/$SELECTED_SITE" -T "$NGINX_SITES_ENABLED/$SELECTED_SITE"
+  ngx_reload
 }
 
 ngx_disable_site() {
-    [[ ! "$SELECTED_SITE" ]] &&
-        ngx_select_site "is_enabled"
+  [[ ! "$SELECTED_SITE" ]] &&
+    ngx_select_site "is_enabled"
 
-    [[ ! -e "$NGINX_SITES_AVAILABLE/$SELECTED_SITE" ]] &&
-        ngx_error "Site does not appear to be \'available\'. - Not Removing"
-    [[ ! -e "$NGINX_SITES_ENABLED/$SELECTED_SITE" ]] &&
-        ngx_error "Site does not appear to be enabled."
+  [[ ! -e "$NGINX_SITES_AVAILABLE/$SELECTED_SITE" ]] &&
+    ngx_error "Site does not appear to be \'available\'. - Not Removing"
+  [[ ! -e "$NGINX_SITES_ENABLED/$SELECTED_SITE" ]] &&
+    ngx_error "Site does not appear to be enabled."
 
-    rm -f "$NGINX_SITES_ENABLED/$SELECTED_SITE"
-    ngx_reload
+  rm -f "$NGINX_SITES_ENABLED/$SELECTED_SITE"
+  ngx_reload
 }
 
 ngx_list_site() {
-    echo "Available sites:"
-    ngx_sites "available"
-    echo "Enabled Sites"
-    ngx_sites "enabled"
+  echo "Available sites:"
+  ngx_sites "available"
+  echo "Enabled Sites"
+  ngx_sites "enabled"
 }
 
 ##
@@ -88,65 +88,68 @@ ngx_list_site() {
 ##
 
 ngx_select_site() {
-    sites_avail=($NGINX_SITES_AVAILABLE/*)
-    sa="${sites_avail[@]##*/}"
-    sites_en=($NGINX_SITES_ENABLED/*)
-    se="${sites_en[@]##*/}"
+  sites_avail=($NGINX_SITES_AVAILABLE/*)
+  sa="${sites_avail[@]##*/}"
+  sites_en=($NGINX_SITES_ENABLED/*)
+  se="${sites_en[@]##*/}"
 
-    case "$1" in
-        not_enabled) sites=$(comm -13 <(printf "%s\n" "$se") <(printf "%s\n" "$sa"));;
-        is_enabled) sites=$(comm -12 <(printf "%s\n" "$se") <(printf "%s\n" "$sa"));;
-    esac
+  case "$1" in
+    not_enabled) sites=$(comm -13 <(printf "%s\n" "$se") <(printf "%s\n" "$sa")) ;;
+    is_enabled) sites=$(comm -12 <(printf "%s\n" "$se") <(printf "%s\n" "$sa")) ;;
+  esac
 
-    ngx_prompt "$sites"
+  ngx_prompt "$sites"
 }
 
 ngx_prompt() {
-    sites=($1)
-    i=0
+  sites=($1)
+  i=0
 
-    echo "SELECT A SITE:"
-    for site in "${sites[@]}"; do
-        echo -e "$i:\t${sites[$i]}"
-        ((i++))
-    done
+  echo "SELECT A SITE:"
+  for site in "${sites[@]}"; do
+    echo -e "$i:\t${sites[$i]}"
+    ((i++))
+  done
 
-    read -rp "Enter number for website: " i
-    SELECTED_SITE="${sites[$i]}"
+  read -rp "Enter number for website: " i
+  SELECTED_SITE="${sites[$i]}"
 }
 
 ngx_sites() {
-    case "$1" in
-        available) dir="$NGINX_SITES_AVAILABLE";;
-        enabled) dir="$NGINX_SITES_ENABLED";;
-    esac
+  case "$1" in
+    available) dir="$NGINX_SITES_AVAILABLE" ;;
+    enabled) dir="$NGINX_SITES_ENABLED" ;;
+  esac
 
-    for file in "$dir"/*; do
-        echo -e "\t${file#*$dir/}"
-    done
+  for file in "$dir"/*; do
+    echo -e "\t${file#*$dir/}"
+  done
 }
 
 ngx_reload() {
-    read -rp "Would you like to reload the Nginx configuration now? (Y/n) " reload
-    [[ "$reload" != "n" && "$reload" != "N" ]] && systemctl reload nginx
+  read -rp "Would you like to reload the Nginx configuration now? (Y/n) " reload
+  if [[ "$reload" != "n" && "$reload" != "N" ]]; then
+    nginx -t || ngx_error "Nginx configuration test failed; not reloading."
+    systemctl reload nginx
+  fi
 }
 
 ngx_error() {
-    echo -e "${0##*/}: ERROR: $1"
-    [[ "$2" ]] && ngx_help
-    exit 1
+  echo -e "${0##*/}: ERROR: $1"
+  [[ "$2" ]] && ngx_help
+  exit 1
 }
 
 ngx_help() {
-    echo "Usage: ${0##*/} [options]"
-    echo "Options:"
-    echo -e "\t<-e|--enable> <site>\tEnable site"
-    echo -e "\t<-d|--disable> <site>\tDisable site"
-    echo -e "\t<-l|--list>\t\tList sites"
-    echo -e "\t<-h|--help>\t\tDisplay help"
-    echo -e "\n\tIf <site> is left out a selection of options will be presented."
-    echo -e "\tIt is assumed you are using the default sites-enabled and"
-    echo -e "\tsites-available located at $NGINX_CONF_DIR."
+  echo "Usage: ${0##*/} [options]"
+  echo "Options:"
+  echo -e "\t<-e|--enable> <site>\tEnable site"
+  echo -e "\t<-d|--disable> <site>\tDisable site"
+  echo -e "\t<-l|--list>\t\tList sites"
+  echo -e "\t<-h|--help>\t\tDisplay help"
+  echo -e "\n\tIf <site> is left out a selection of options will be presented."
+  echo -e "\tIt is assumed you are using the default sites-enabled and"
+  echo -e "\tsites-available located at $NGINX_CONF_DIR."
 }
 
 ##
@@ -154,9 +157,12 @@ ngx_help() {
 ##
 
 case "$1" in
-    -e|--enable)  ngx_enable_site;;
-    -d|--disable) ngx_disable_site;;
-    -l|--list)    ngx_list_site;;
-    -h|--help)    ngx_help;;
-    *)            ngx_error "No Options Selected" 1; ngx_help;;
+  -e | --enable) ngx_enable_site ;;
+  -d | --disable) ngx_disable_site ;;
+  -l | --list) ngx_list_site ;;
+  -h | --help) ngx_help ;;
+  *)
+    ngx_error "No Options Selected" 1
+    ngx_help
+    ;;
 esac

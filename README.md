@@ -87,7 +87,7 @@ sudo systemctl restart php8.4-fpm
 ## Notes
 
 - The `showcron.sh` script provides a comprehensive overview of all cron jobs and their status.
-- The `nginx_modsite` script helps enable or disable nginx site configurations.
+- The `nginx_modsite` script helps enable or disable nginx site configurations and validates the nginx configuration before reloading it.
 - The repository is intended for advanced users familiar with Linux server administration.
 
 ## License
