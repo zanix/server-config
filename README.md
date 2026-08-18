@@ -8,19 +8,20 @@ This repository contains configuration files and scripts for managing and securi
 ## Directory Structure
 
 - `etc/` - Contains configuration files for system services:
-  - `backup/` — Backup scripts and configuration for databases, websites, and system files.
-  - `cron.d/` — Custom cron job definitions.
-  - `fail2ban/` — Fail2ban jail and filter configurations.
-  - `mysql/` — MariaDB/MySQL configuration files.
-  - `nginx/` — Nginx main config, SSL params, and site definitions.
-  - `ssh/` — SSH daemon configuration snippets.
-  - `sysctl.d/` — Kernel parameter tuning for security and networking.
+  - `backup/` - Backup scripts and configuration for databases, websites, and system files.
+  - `cron.d/` - Custom cron job definitions.
+  - `fail2ban/` - Fail2ban jail and filter configurations.
+  - `mysql/` - MariaDB/MySQL configuration files.
+  - `nginx/` - Nginx main config, SSL params, and site definitions.
+  - `ssh/` - SSH daemon configuration snippets.
+  - `sysctl.d/` - Kernel parameter tuning for security and networking.
 - `scripts/` - Utility scripts for system management (e.g., PHP configuration).
 - `usr/local/bin/` - Custom scripts for server management, such as:
-  - `drupal-perms.sh` — Fixes permissions for Drupal installations.
-  - `nginx_modsite` — Enables/disables nginx sites.
-  - `showcron.sh` — Lists and analyzes cron jobs.
-  - `wgetarx.sh` — Downloads and extracts tarballs in one step.
+  - `drupal-perms.sh` - Fixes permissions for Drupal installations.
+  - `fail2ban-list` - Lists active fail2ban jails and their banned IPs.
+  - `nginx_modsite` - Enables/disables nginx sites.
+  - `showcron.sh` - Lists and analyzes cron jobs.
+  - `wgetarx.sh` - Downloads and extracts tarballs in one step.
 
 ## Setup Instructions
 

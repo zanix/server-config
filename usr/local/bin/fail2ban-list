@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# This script lists all jails and their banned IPs in a formatted table.
 
 import re
 import subprocess

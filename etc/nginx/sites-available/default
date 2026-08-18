@@ -29,7 +29,7 @@ server {
 	# listen X.X.X.X:80 default_server;
 	# listen X.X.X.X:443 ssl default_server;
 
-	server_name _;
+	server_name $IP _;
 
 	# Dummy certificates (Required so Nginx can boot and handle port 443)
 	ssl_stapling off;

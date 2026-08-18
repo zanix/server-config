@@ -10,6 +10,13 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 # 0 */2 * * * root croncape /etc/backup/databases.mysql [DEST(/backup/mysql)] [KEEP(30D)]
 
 ############################################
+# pg_dump
+############################################
+
+# At 0 past every 2nd hour
+# 0 */2 * * * root croncape /etc/backup/databases.pgsql [DEST(/backup/postgres)] [KEEP(30D)]
+
+############################################
 # rdiff
 ############################################
 
